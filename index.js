@@ -3,6 +3,7 @@ const path = require('path')
 const mongoose = require('mongoose')
 const methodOverride = require('method-override')
 const ejsMate = require('ejs-mate')
+const Joi = require('joi')
 const Campground = require('./models/campground')
 const ExpressError = require('./utils/ExpressError')
 const catchAsync = require('./utils/catchAsync')
@@ -43,6 +44,24 @@ app.get('/campgrounds/new', (req, res) => {
 
 // Creates the new campground to add to the list of all campgrounds
 app.post('/campgrounds', catchAsync( async (req, res, next) => {
+
+    // Not a mongoose schema. It will validate our data before saving with mongoose 
+    const campgroundSchema = Joi.object({
+        campground: Joi.object({
+            title: Joi.string().required(),
+            price: Joi.price().required().min(0),
+            image: Joi.string().required(),
+            location: Joi.string().required(),
+            description: Joi.string().required()
+        }).required()
+    })
+
+    // Pass our data through the schema
+    const {error} = campgroundSchema.validate(req.body)
+    if (result.error) {
+        const msg = error.details.map(el => el.message).join(',')
+        throw new ExpressError(msg, 400)
+    }
     const campground = new Campground(req.body.campground)
     await campground.save()
     res.redirect(`/campgrounds/${campground._id}`)
@@ -74,8 +93,14 @@ app.delete('/campgrounds/:id', catchAsync( async (req, res) => {
     res.redirect('/campgrounds')
 }))
 
+app.all(/'*'/, (req, res, next) => {
+    next(new ExpressError('Page Not Found', 404))
+})
+
 app.use((err, req, res, next) => {
-    
+    const { statusCode = 500 } = err;
+    if (!err.message) err.message = 'Something went wrong'
+    res.status(statusCode).render('error', { err } )
 })
 
 app.listen(3000, () => {
