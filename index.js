@@ -7,7 +7,8 @@ const Joi = require('joi')
 const Campground = require('./models/campground')
 const ExpressError = require('./utils/ExpressError')
 const catchAsync = require('./utils/catchAsync')
-const { campgroundSchema } = require('./schemas.js')
+const { campgroundSchema, reviewSchema } = require('./schemas.js')
+const Review = require('./models/review.js')
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp')
 
@@ -30,6 +31,17 @@ app.use(methodOverride('_method'))
 const validateCampground = (req, res, next) => {
     // Pass our data through the schema
     const {error} = campgroundSchema.validate(req.body)
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',')
+        throw new ExpressError(msg, 400)
+    } else {
+        next();
+    }
+}
+
+const validateReview = (req, res, next) => {
+    // Pass our data through the schema
+    const {error} = reviewSchema.validate(req.body)
     if (error) {
         const msg = error.details.map(el => el.message).join(',')
         throw new ExpressError(msg, 400)
@@ -84,8 +96,17 @@ app.put('/campgrounds/:id', validateCampground, catchAsync( async (req, res) => 
 // Deletes specific campground with associated id
 app.delete('/campgrounds/:id', catchAsync( async (req, res) => {
     const { id } = req.params;
-    await Campground.findByIdAndDelete(id)
+    await Campground.findByIdAndDelete(id).populate('reviews')
     res.redirect('/campgrounds')
+}))
+
+app.post('/campgrounds/:id/reviews', validateReview,  catchAsync( async (req, res) => {
+    const campground = await Campground.findById(req.params.id)
+    const review = new Review(req.body.review)
+    campground.reviews.push(review)
+    await review.save();
+    await campground.save()
+    res.redirect(`/campgrounds/${campground._id}`)
 }))
 
 app.all(/'*'/, (req, res, next) => {
