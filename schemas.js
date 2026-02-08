@@ -1,4 +1,4 @@
-const Joi = require('joi')
+const Joi = require('joi');
 
 // Not a mongoose schema. It will validate our data before saving with mongoose 
 module.exports.campgroundSchema = Joi.object({

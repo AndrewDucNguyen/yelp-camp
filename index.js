@@ -13,7 +13,7 @@ const User = require('./models/user');
 
 const campgroundsRoutes = require('./routes/campgrounds');
 const reviewsRoutes = require('./routes/reviews');
-const userRoutes = require('./routes/users')
+const userRoutes = require('./routes/users');
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp');
 
@@ -65,19 +65,19 @@ app.use('/campgrounds/:id/reviews', reviewsRoutes);
 
 // Home
 app.get('/', (req, res) => {
-    res.render('home')
+    res.render('home');
 })
 
 app.all(/'*'/, (req, res, next) => {
-    next(new ExpressError('Page Not Found', 404))
+    next(new ExpressError('Page Not Found', 404));
 })
 
 app.use((err, req, res, next) => {
     const { statusCode = 500 } = err;
-    if (!err.message) err.message = 'Something went wrong'
-    res.status(statusCode).render('error', { err } )
+    if (!err.message) err.message = 'Something went wrong';
+    res.status(statusCode).render('error', { err });
 })
 
 app.listen(3000, () => {
-    console.log('listening on port 3000')
+    console.log('listening on port 3000');
 })
