@@ -11,7 +11,7 @@ const { reviewSchema } = require('../schemas');
 
 const validateReview = (req, res, next) => {
     // Pass our data through the schema
-    const {error} = reviewSchema.validate(req.body);
+    const { error } = reviewSchema.validate(req.body);
     if (error) {
         const msg = error.details.map(el => el.message).join(',');
         throw new ExpressError(msg, 400);
@@ -37,3 +37,5 @@ router.delete('/:reviewId', catchAsync( async(req, res) => {
     req.flash('success', 'Successfully deleted review');
     res.redirect(`/campgrounds/${id}`);
 }))
+
+module.exports = router
