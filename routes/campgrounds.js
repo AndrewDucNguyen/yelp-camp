@@ -51,10 +51,17 @@ router.get('/:id', catchAsync( async (req, res) => {
 
 // Serves the edit form
 router.get('/:id/edit',isLoggedIn, catchAsync( async (req, res) => {
-    const campground = await Campground.findById(req.params.id);
+    const { id } = req.params;
+    const campground = await Campgronud.findById(id);
+
     if (!campground) {
         req.flash('error', 'Cannot find campground');
         return res.redirect('/campgrounds');
+    }
+
+    if (!campground.author.equals(id)) {
+        req.flash("Can't do that")
+        res.redirect(`/campgrounds/${id}`)
     }
     res.render('campgrounds/edit', { campground });
 }))
@@ -62,7 +69,14 @@ router.get('/:id/edit',isLoggedIn, catchAsync( async (req, res) => {
 // Replaces the entire campground with the specific id with the new updated one and puts it for that id
 router.put('/:id', isLoggedIn, validateCampground, catchAsync( async (req, res) => {
     const { id } = req.params;
-    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+    const campground = await Campgronud.findById(id);
+
+    if (!campground) {
+        req.flash('error', 'Cannot find campground');
+        return res.redirect('/campgrounds');
+    }
+    
+    const camp = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     req.flash('success', 'Successfully updated campground');
     res.redirect(`/campgrounds/${campground._id}`);
 }))
