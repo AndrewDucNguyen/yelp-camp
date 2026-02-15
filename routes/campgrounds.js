@@ -28,7 +28,7 @@ router.delete('/:id', isLoggedIn, isAuthor, catchAsync(campgrounds.deleteCampgro
 // You can use router.route to group together simliar routes
 router.route('/')
     .get(catchAsync(campgrounds.index))
-    .post(isLoggedIn, isAuthor, validateCampground, catchAsync(campgrounds.createCampgrounds));
+    .post(isLoggedIn, isAuthor, validateCampground, upload.array('image'), catchAsync(campgrounds.createCampgrounds));
 
 // Serves the form to create new campground
 router.get('/new', isLoggedIn, campgrounds.renderNewForm);
