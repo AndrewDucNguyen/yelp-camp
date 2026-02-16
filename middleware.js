@@ -1,6 +1,6 @@
 const ExpressError = require('./utils/ExpressError');
 const { campgroundSchema } = require('./schemas');
-const { reviewSchema } = require('../schemas');
+const { reviewSchema } = require('./schemas');
 const Campground = require('./models/campground');
 const Review = require('./models/review');
 
@@ -37,8 +37,8 @@ module.exports.isAuthor = async (req, res, next) => {
     const campground = await Campground.findById(id);
 
     if (!campground.author.equals(req.user._id)) {
-        req.flash("Can't do that")
-        res.redirect(`/campgrounds/${id}`)
+        req.flash("Can't do that");
+        return res.redirect(`/campgrounds/${id}`);
     }
     next();
 }
@@ -48,8 +48,8 @@ module.exports.isReviewAuthor = async (req, res, next) => {
     const review = await Review.findById(reviewid);
 
     if (!review.author.equals(req.user._id)) {
-        req.flash("Can't do that")
-        res.redirect(`/campgrounds/${id}`)
+        req.flash("Can't do that");
+        return res.redirect(`/campgrounds/${id}`);
     }
     next();
 }
