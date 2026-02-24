@@ -124,16 +124,12 @@ map.on('load', () => {
         type: 'click',
         target: { layerId: 'unclustered-point' },
         handler: (e) => {
+            const {popUpMarkup} = e.feature[0].properties.popUpMarkup
             const coordinates = e.feature.geometry.coordinates.slice();
-            const mag = e.feature.properties.mag;
-            const tsunami =
-                e.feature.properties.tsunami === 1 ? 'yes' : 'no';
 
             new mapboxgl.Popup()
                 .setLngLat(coordinates)
-                .setHTML(
-                    `magnitude: ${mag}<br>Was there a tsunami?: ${tsunami}`
-                )
+                .setHTML(popUpMarkup)
                 .addTo(map);
         }
     });
